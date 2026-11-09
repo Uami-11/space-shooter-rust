@@ -14,6 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (mut rl, thread) = sola_raylib::init()
         .size(WINDOW_WIDTH, WINDOW_HEIGHT)
         .title(WINDOW_TITLE)
+        .resizable()
         .build();
 
     let audio = RaylibAudio::init_audio_device()?;
