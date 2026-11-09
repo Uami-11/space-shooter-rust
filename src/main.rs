@@ -14,6 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (mut rl, thread) = sola_raylib::init()
         .size(WINDOW_WIDTH, WINDOW_HEIGHT)
         .title(WINDOW_TITLE)
+        .fullscreen()
         .resizable()
         .build();
 
