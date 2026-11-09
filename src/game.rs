@@ -69,6 +69,10 @@ impl<'aud> Game<'aud> {
 
     pub fn run(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
         while self.running && !rl.window_should_close() {
+            if rl.is_key_pressed(KeyboardKey::KEY_F4) {
+                rl.toggle_fullscreen();
+            }
+
             self.update(rl);
             if !self.running {
                 break;
@@ -175,33 +179,56 @@ impl<'aud> Game<'aud> {
 
     pub fn draw(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
         let mut d = rl.begin_drawing(thread);
-        d.clear_background(BG_COLOR);
 
-        for star in &self.stars {
-            d.draw_texture_ex(
-                &self.assets.textures.star,
-                star.pos,
-                0.0,
-                star.scale,
-                Color::WHITE,
-            );
-        }
-        self.player
-            .sprite
-            .draw(&mut d, &self.assets.textures.player);
-        for laser in &self.lasers {
-            laser.sprite.draw(&mut d, &self.assets.textures.laser);
-        }
+        let screen_w = d.get_screen_width() as f32;
+        let screen_h = d.get_screen_height() as f32;
 
-        for meteor in &self.meteors {
-            meteor.draw(&mut d, &self.assets.textures.meteor);
-        }
+        // Fit the fixed 1280x800 world into the current window, preserving
+        // aspect ratio and centering it with letterbox bars.
+        let scale = (screen_w / WINDOW_WIDTH as f32).min(screen_h / WINDOW_HEIGHT as f32);
+        let offset = Vector2::new(
+            (screen_w - WINDOW_WIDTH as f32 * scale) * 0.5,
+            (screen_h - WINDOW_HEIGHT as f32 * scale) * 0.5,
+        );
 
-        for explosion in &self.explosions {
-            explosion.draw(&mut d, &self.assets.textures.explosion);
-        }
+        d.clear_background(Color::BLACK);
 
-        self.draw_score(&mut d);
+        let camera = Camera2D {
+            offset,
+            target: Vector2::zero(),
+            rotation: 0.0,
+            zoom: scale,
+        };
+
+        d.draw_mode2D(camera, |mut d, _| {
+            d.draw_rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, BG_COLOR);
+
+            for star in &self.stars {
+                d.draw_texture_ex(
+                    &self.assets.textures.star,
+                    star.pos,
+                    0.0,
+                    star.scale,
+                    Color::WHITE,
+                );
+            }
+            self.player
+                .sprite
+                .draw(&mut d, &self.assets.textures.player);
+            for laser in &self.lasers {
+                laser.sprite.draw(&mut d, &self.assets.textures.laser);
+            }
+
+            for meteor in &self.meteors {
+                meteor.draw(&mut d, &self.assets.textures.meteor);
+            }
+
+            for explosion in &self.explosions {
+                explosion.draw(&mut d, &self.assets.textures.explosion);
+            }
+
+            self.draw_score(&mut d);
+        });
     }
 
     fn draw_score(&mut self, d: &mut RaylibDrawHandle<'_>) {
