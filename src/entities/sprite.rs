@@ -40,4 +40,8 @@ impl Sprite {
     pub fn rect(&self) -> Rectangle {
         Rectangle::new(self.pos.x, self.pos.y, self.size.x, self.size.y)
     }
+
+    pub fn draw(&self, d: &mut RaylibDrawHandle, texture: &Texture2D) {
+        d.draw_texture_v(texture, self.pos, Color::WHITE);
+    }
 }

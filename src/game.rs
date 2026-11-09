@@ -1,13 +1,17 @@
+use std::error::Error;
+
 use raylib_utils::timer::Timer;
 use sola_raylib::prelude::*;
 
 use crate::{
+    assets::{Assets, Textures},
     collision,
     entities::{Input, Laser, Meteor, Player},
     settings::{BG_COLOR, METEOR_TIMER_DURATION, WINDOW_HEIGHT, WINDOW_WIDTH},
 };
 
-pub struct Game {
+pub struct Game<'aud> {
+    assets: Assets<'aud>,
     player: Player,
     lasers: Vec<Laser>,
     meteors: Vec<Meteor>,
@@ -15,10 +19,19 @@ pub struct Game {
     running: bool,
 }
 
-impl Game {
-    pub fn new() -> Self {
-        let player_size = Vector2::new(60.0, 60.0);
-        Self {
+impl<'aud> Game<'aud> {
+    pub fn new(
+        rl: &mut RaylibHandle,
+        thread: &RaylibThread,
+        audio: &'aud RaylibAudio,
+    ) -> Result<Self, Box<dyn Error>> {
+        let assets = Assets::load(rl, thread, audio)?;
+        assets.audio.music.play_stream();
+
+        let player_size = Textures::size_of(&assets.textures.player);
+
+        Ok(Self {
+            assets,
             running: true,
             player: Player::new(
                 Vector2::new(WINDOW_WIDTH as f32 / 2.0, WINDOW_HEIGHT as f32 / 2.0),
@@ -27,7 +40,7 @@ impl Game {
             meteors: Vec::new(),
             meteor_timer: Timer::new(METEOR_TIMER_DURATION, true, true),
             lasers: Vec::new(),
-        }
+        })
     }
 
     pub fn run(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
@@ -115,13 +128,15 @@ impl Game {
         let mut d = rl.begin_drawing(thread);
         d.clear_background(BG_COLOR);
 
-        self.player.draw(&mut d);
+        self.player
+            .sprite
+            .draw(&mut d, &self.assets.textures.player);
         for laser in &self.lasers {
-            laser.draw(&mut d);
+            laser.sprite.draw(&mut d, &self.assets.textures.laser);
         }
 
         for meteor in &self.meteors {
-            meteor.draw(&mut d);
+            meteor.sprite.draw(&mut d, &self.assets.textures.meteor);
         }
     }
 }

@@ -57,9 +57,9 @@ impl Player {
             .clamp(0.0, WINDOW_HEIGHT as f32 - self.sprite.size.y);
     }
 
-    pub fn draw(&mut self, d: &mut RaylibDrawHandle<'_>) {
-        d.draw_rectangle_v(self.sprite.pos, self.sprite.size, Color::WHITE)
-    }
+    // pub fn draw(&mut self, d: &mut RaylibDrawHandle<'_>) {
+    //     d.draw_rectangle_v(self.sprite.pos, self.sprite.size, Color::WHITE)
+    // }
 
     pub fn muzzle(&mut self) -> Vector2 {
         Vector2::new(
