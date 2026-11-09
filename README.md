@@ -7,3 +7,5 @@ All hail raylib, kinda followed Clear Code's video but had to change a lot from 
 ```
 cargo run
 ```
+
+or checkout [my itch page](https://uami.itch.io/space-shooter)
