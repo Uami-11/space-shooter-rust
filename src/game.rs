@@ -8,8 +8,8 @@ use crate::{
     collision,
     entities::{Explosion, Input, Laser, Meteor, Player},
     settings::{
-        BG_COLOR, METEOR_TIMER_DURATION, STAR_COUNT, STAR_SCALE_MAX, STAR_SCALE_MIN, WINDOW_HEIGHT,
-        WINDOW_WIDTH,
+        BG_COLOR, FONT_SIZE, METEOR_TIMER_DURATION, STAR_COUNT, STAR_SCALE_MAX, STAR_SCALE_MIN,
+        WINDOW_HEIGHT, WINDOW_WIDTH,
     },
 };
 
@@ -26,6 +26,7 @@ pub struct Game<'aud> {
     meteor_timer: Timer,
     explosions: Vec<Explosion>,
     stars: Vec<Star>,
+    score: u32,
     running: bool,
 }
 
@@ -62,6 +63,7 @@ impl<'aud> Game<'aud> {
             lasers: Vec::new(),
             explosions: Vec::new(),
             stars,
+            score: 0,
         })
     }
 
@@ -136,6 +138,7 @@ impl<'aud> Game<'aud> {
                     self.explosions
                         .push(Explosion::new(meteor.sprite.center(), frame_size));
                     self.assets.audio.explosion.play();
+                    self.score += 1;
                 }
             }
         }
@@ -197,5 +200,28 @@ impl<'aud> Game<'aud> {
         for explosion in &self.explosions {
             explosion.draw(&mut d, &self.assets.textures.explosion);
         }
+
+        self.draw_score(&mut d);
+    }
+
+    fn draw_score(&mut self, d: &mut RaylibDrawHandle<'_>) {
+        let text = self.score.to_string();
+
+        let size = self
+            .assets
+            .textures
+            .font
+            .measure_text(&text, FONT_SIZE as f32, 0.0);
+
+        let pos = Vector2::new(WINDOW_WIDTH as f32 / 2.0 - size.x / 2.0, 100.0);
+
+        d.draw_text_ex(
+            &self.assets.textures.font,
+            &text,
+            pos,
+            FONT_SIZE as f32,
+            0.0,
+            Color::WHITE,
+        );
     }
 }

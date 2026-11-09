@@ -2,12 +2,15 @@ use std::error::Error;
 
 use sola_raylib::prelude::*;
 
+use crate::settings::FONT_SIZE;
+
 pub struct Textures {
     pub player: Texture2D,
     pub laser: Texture2D,
     pub meteor: Texture2D,
     pub explosion: Vec<Texture2D>,
     pub star: Texture2D,
+    pub font: Font,
 }
 
 pub struct AudioAssets<'aud> {
@@ -33,6 +36,7 @@ impl Textures {
             meteor: rl.load_texture(thread, "assets/images/meteor.png")?,
             explosion,
             star: rl.load_texture(thread, "assets/images/star.png")?,
+            font: rl.load_font_ex(thread, "assets/font/Stormfaze.otf", FONT_SIZE, None)?,
         })
     }
 
