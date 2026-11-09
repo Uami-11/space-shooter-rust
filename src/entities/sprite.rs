@@ -26,6 +26,6 @@ impl Sprite {
 
     pub fn update(&mut self, dt: f32) {
         self.advance(dt);
-        self.discard = !(300.0 < self.pos.y && self.pos.y < WINDOW_HEIGHT as f32 - 300.0);
+        self.discard = !(-300.0 < self.pos.y && self.pos.y < WINDOW_HEIGHT as f32 + 300.0);
     }
 }
