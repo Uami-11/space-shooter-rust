@@ -1,0 +1,9 @@
+FROM ghcr.io/cross-rs/x86_64-pc-windows-gnu:edge
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        cmake \
+        clang \
+        libclang-dev \
+        ca-certificates && \
+    rm -rf /var/lib/apt/lists/*

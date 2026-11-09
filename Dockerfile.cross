@@ -1,0 +1,61 @@
+FROM ghcr.io/cross-rs/x86_64-pc-windows-gnu:0.2.5
+
+ARG CMAKE_VERSION=3.31.8
+
+RUN apt-get update && \
+    apt-get install -y \
+        wget \
+        ca-certificates \
+        tar \
+        clang \
+        libclang-dev && \
+    wget -q \
+      "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" \
+      -O /tmp/cmake.tar.gz && \
+    tar -xzf /tmp/cmake.tar.gz -C /opt && \
+    rm /tmp/cmake.tar.gz && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/opt/cmake-${CMAKE_VERSION}-linux-x86_64/bin:${PATH}"
+
+RUN set -eux; \
+    MINGW_LIBDIR="$(dirname "$(x86_64-w64-mingw32-gcc -print-file-name=libkernel32.a)")"; \
+    printf '%s\n' \
+        'LIBRARY api-ms-win-core-synch-l1-2-0.dll' \
+        'EXPORTS' \
+        'WaitOnAddress' \
+        'WakeByAddressAll' \
+        'WakeByAddressSingle' \
+        > /tmp/synchronization.def; \
+    x86_64-w64-mingw32-dlltool \
+        -m i386:x86-64 \
+        -d /tmp/synchronization.def \
+        -l "$MINGW_LIBDIR/libsynchronization.a"; \
+    rm /tmp/synchronization.def
+
+
+# Compatibility import for GetHostNameW, missing from old MinGW.
+RUN set -eux; \
+    MINGW_LIBDIR="$(dirname "$(x86_64-w64-mingw32-gcc -print-file-name=libkernel32.a)")"; \
+    printf '%s\n' \
+        'LIBRARY ws2_32.dll' \
+        'EXPORTS' \
+        'GetHostNameW' \
+        > /tmp/hostname.def; \
+    x86_64-w64-mingw32-dlltool \
+        -m i386:x86-64 \
+        -d /tmp/hostname.def \
+        -l /tmp/libhostname.a; \
+    mkdir -p /tmp/hostname-members; \
+    cd /tmp/hostname-members; \
+    x86_64-w64-mingw32-ar x /tmp/libhostname.a; \
+    for f in *.o; do \
+        mv "$f" "hostname-$f"; \
+    done; \
+    x86_64-w64-mingw32-ar q \
+        "$MINGW_LIBDIR/libsynchronization.a" \
+        hostname-*.o; \
+    x86_64-w64-mingw32-ranlib \
+        "$MINGW_LIBDIR/libsynchronization.a"; \
+    rm -rf /tmp/hostname-members /tmp/hostname.def /tmp/libhostname.a
+
