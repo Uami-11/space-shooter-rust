@@ -6,11 +6,13 @@ pub struct Textures {
     pub player: Texture2D,
     pub laser: Texture2D,
     pub meteor: Texture2D,
+    pub explosion: Vec<Texture2D>,
 }
 
 pub struct AudioAssets<'aud> {
     pub laser: Sound<'aud>,
     pub music: Music<'aud>,
+    pub explosion: Sound<'aud>,
 }
 
 pub struct Assets<'aud> {
@@ -20,10 +22,15 @@ pub struct Assets<'aud> {
 
 impl Textures {
     pub fn load(rl: &mut RaylibHandle, thread: &RaylibThread) -> Result<Self, Box<dyn Error>> {
+        let mut explosion = Vec::with_capacity(28);
+        for i in 1..=28 {
+            explosion.push(rl.load_texture(thread, &format!("assets/images/explosion/{i}.png"))?);
+        }
         Ok(Self {
             player: rl.load_texture(thread, "assets/images/spaceship.png")?,
             laser: rl.load_texture(thread, "assets/images/laser.png")?,
             meteor: rl.load_texture(thread, "assets/images/meteor.png")?,
+            explosion,
         })
     }
 
@@ -37,6 +44,7 @@ impl<'aud> AudioAssets<'aud> {
         Ok(Self {
             laser: audio.new_sound("assets/audio/laser.wav")?,
             music: audio.new_music("assets/audio/music.wav")?,
+            explosion: audio.new_sound("assets/audio/explosion.wav")?,
         })
     }
 }

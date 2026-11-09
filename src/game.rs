@@ -6,7 +6,7 @@ use sola_raylib::prelude::*;
 use crate::{
     assets::{Assets, Textures},
     collision,
-    entities::{Input, Laser, Meteor, Player},
+    entities::{Explosion, Input, Laser, Meteor, Player},
     settings::{BG_COLOR, METEOR_TIMER_DURATION, WINDOW_HEIGHT, WINDOW_WIDTH},
 };
 
@@ -16,6 +16,7 @@ pub struct Game<'aud> {
     lasers: Vec<Laser>,
     meteors: Vec<Meteor>,
     meteor_timer: Timer,
+    explosions: Vec<Explosion>,
     running: bool,
 }
 
@@ -40,6 +41,7 @@ impl<'aud> Game<'aud> {
             meteors: Vec::new(),
             meteor_timer: Timer::new(METEOR_TIMER_DURATION, true, true),
             lasers: Vec::new(),
+            explosions: Vec::new(),
         })
     }
 
@@ -52,6 +54,8 @@ impl<'aud> Game<'aud> {
 
             self.draw(rl, thread);
         }
+
+        self.assets.audio.music.stop_stream();
     }
 
     pub fn update(&mut self, rl: &RaylibHandle) {
@@ -77,11 +81,17 @@ impl<'aud> Game<'aud> {
             meteor.update(dt);
         }
 
+        let frame_count = self.assets.textures.explosion.len();
+        for explosion in &mut self.explosions {
+            explosion.update(dt, frame_count);
+        }
+
         self.handle_collisions();
         self.discard();
     }
 
     fn handle_collisions(&mut self) {
+        let frame_size = Textures::size_of(&self.assets.textures.explosion[0]);
         for laser in &mut self.lasers {
             for meteor in &mut self.meteors {
                 if laser.sprite.discard || meteor.sprite.discard {
@@ -95,6 +105,10 @@ impl<'aud> Game<'aud> {
                 ) {
                     laser.sprite.discard = true;
                     meteor.sprite.discard = true;
+
+                    self.explosions
+                        .push(Explosion::new(meteor.sprite.center(), frame_size));
+                    self.assets.audio.explosion.play();
                 }
             }
         }
@@ -142,6 +156,10 @@ impl<'aud> Game<'aud> {
 
         for meteor in &self.meteors {
             meteor.draw(&mut d, &self.assets.textures.meteor);
+        }
+
+        for explosion in &self.explosions {
+            explosion.draw(&mut d, &self.assets.textures.explosion);
         }
     }
 }

@@ -10,3 +10,5 @@ pub const METEOR_SPEED_MIN: f32 = 300.0;
 pub const METEOR_SPEED_MAX: f32 = 400.0;
 pub const METEOR_TIMER_DURATION: f32 = 0.4;
 pub const LASER_SPEED: f32 = 700.0;
+
+pub const EXPLOSION_FPS: f32 = 20.0;
