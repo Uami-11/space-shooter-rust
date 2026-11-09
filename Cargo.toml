@@ -5,3 +5,5 @@ edition = "2024"
 
 [dependencies]
 sola-raylib = "6.3.1"
+raylib_utils = { git = "https://github.com/Uami-11/raylib-utils" }
+rand = "0.10.3"
