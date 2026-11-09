@@ -7,6 +7,7 @@ pub struct Textures {
     pub laser: Texture2D,
     pub meteor: Texture2D,
     pub explosion: Vec<Texture2D>,
+    pub star: Texture2D,
 }
 
 pub struct AudioAssets<'aud> {
@@ -31,6 +32,7 @@ impl Textures {
             laser: rl.load_texture(thread, "assets/images/laser.png")?,
             meteor: rl.load_texture(thread, "assets/images/meteor.png")?,
             explosion,
+            star: rl.load_texture(thread, "assets/images/star.png")?,
         })
     }
 

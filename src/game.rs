@@ -7,8 +7,16 @@ use crate::{
     assets::{Assets, Textures},
     collision,
     entities::{Explosion, Input, Laser, Meteor, Player},
-    settings::{BG_COLOR, METEOR_TIMER_DURATION, WINDOW_HEIGHT, WINDOW_WIDTH},
+    settings::{
+        BG_COLOR, METEOR_TIMER_DURATION, STAR_COUNT, STAR_SCALE_MAX, STAR_SCALE_MIN, WINDOW_HEIGHT,
+        WINDOW_WIDTH,
+    },
 };
+
+struct Star {
+    pos: Vector2,
+    scale: f32,
+}
 
 pub struct Game<'aud> {
     assets: Assets<'aud>,
@@ -17,6 +25,7 @@ pub struct Game<'aud> {
     meteors: Vec<Meteor>,
     meteor_timer: Timer,
     explosions: Vec<Explosion>,
+    stars: Vec<Star>,
     running: bool,
 }
 
@@ -31,6 +40,16 @@ impl<'aud> Game<'aud> {
 
         let player_size = Textures::size_of(&assets.textures.player);
 
+        let stars = (0..STAR_COUNT)
+            .map(|_| Star {
+                pos: Vector2::new(
+                    rand::random_range(0..=WINDOW_WIDTH) as f32,
+                    rand::random_range(0..=WINDOW_HEIGHT) as f32,
+                ),
+                scale: rand::random_range(STAR_SCALE_MIN..=STAR_SCALE_MAX),
+            })
+            .collect();
+
         Ok(Self {
             assets,
             running: true,
@@ -42,6 +61,7 @@ impl<'aud> Game<'aud> {
             meteor_timer: Timer::new(METEOR_TIMER_DURATION, true, true),
             lasers: Vec::new(),
             explosions: Vec::new(),
+            stars,
         })
     }
 
@@ -61,6 +81,13 @@ impl<'aud> Game<'aud> {
     pub fn update(&mut self, rl: &RaylibHandle) {
         self.assets.audio.music.update_stream();
         let dt = rl.get_frame_time();
+        for star in &mut self.stars {
+            star.pos.y += 100.0 * dt;
+            if star.pos.y > WINDOW_HEIGHT as f32 {
+                star.pos.y = -10.0;
+            }
+        }
+
         let input = Input::read(rl);
         if self.meteor_timer.tick(dt) {
             self.meteors
@@ -147,6 +174,15 @@ impl<'aud> Game<'aud> {
         let mut d = rl.begin_drawing(thread);
         d.clear_background(BG_COLOR);
 
+        for star in &self.stars {
+            d.draw_texture_ex(
+                &self.assets.textures.star,
+                star.pos,
+                0.0,
+                star.scale,
+                Color::WHITE,
+            );
+        }
         self.player
             .sprite
             .draw(&mut d, &self.assets.textures.player);
