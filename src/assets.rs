@@ -21,9 +21,9 @@ pub struct Assets<'aud> {
 impl Textures {
     pub fn load(rl: &mut RaylibHandle, thread: &RaylibThread) -> Result<Self, Box<dyn Error>> {
         Ok(Self {
-            player: rl.load_texture(thread, "../assets/images/spaceship.png")?,
-            laser: rl.load_texture(thread, "../assets/images/laser.png")?,
-            meteor: rl.load_texture(thread, "../assets/images/meteor.png")?,
+            player: rl.load_texture(thread, "assets/images/spaceship.png")?,
+            laser: rl.load_texture(thread, "assets/images/laser.png")?,
+            meteor: rl.load_texture(thread, "assets/images/meteor.png")?,
         })
     }
 
@@ -35,8 +35,8 @@ impl Textures {
 impl<'aud> AudioAssets<'aud> {
     pub fn load(audio: &'aud RaylibAudio) -> Result<Self, Box<dyn Error>> {
         Ok(Self {
-            laser: audio.new_sound("../assets/audio/laser.wav")?,
-            music: audio.new_music("../assets/audio/music.wav")?,
+            laser: audio.new_sound("assets/audio/laser.wav")?,
+            music: audio.new_music("assets/audio/music.wav")?,
         })
     }
 }

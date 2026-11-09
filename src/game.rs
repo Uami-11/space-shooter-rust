@@ -55,10 +55,12 @@ impl<'aud> Game<'aud> {
     }
 
     pub fn update(&mut self, rl: &RaylibHandle) {
+        self.assets.audio.music.update_stream();
         let dt = rl.get_frame_time();
         let input = Input::read(rl);
         if self.meteor_timer.tick(dt) {
-            self.meteors.push(Meteor::new(Vector2::new(60.0, 60.0)));
+            self.meteors
+                .push(Meteor::new(Textures::size_of(&self.assets.textures.meteor)));
         }
 
         if input.shoot {
@@ -120,8 +122,11 @@ impl<'aud> Game<'aud> {
     }
 
     fn spawn_laser(&mut self) {
-        self.lasers
-            .push(Laser::new(self.player.muzzle(), Vector2::new(12.0, 30.0)));
+        self.assets.audio.laser.play();
+        self.lasers.push(Laser::new(
+            self.player.muzzle(),
+            Textures::size_of(&self.assets.textures.laser),
+        ));
     }
 
     pub fn draw(&mut self, rl: &mut RaylibHandle, thread: &RaylibThread) {
@@ -136,7 +141,7 @@ impl<'aud> Game<'aud> {
         }
 
         for meteor in &self.meteors {
-            meteor.sprite.draw(&mut d, &self.assets.textures.meteor);
+            meteor.draw(&mut d, &self.assets.textures.meteor);
         }
     }
 }

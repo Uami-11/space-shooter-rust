@@ -13,7 +13,7 @@ impl Laser {
         }
     }
 
-    pub fn draw(&self, d: &mut RaylibDrawHandle<'_>) {
-        d.draw_rectangle_v(self.sprite.pos, self.sprite.size, Color::PURPLE);
-    }
+    // pub fn draw(&self, d: &mut RaylibDrawHandle<'_>) {
+    //     d.draw_rectangle_v(self.sprite.pos, self.sprite.size, Color::PURPLE);
+    // }
 }
