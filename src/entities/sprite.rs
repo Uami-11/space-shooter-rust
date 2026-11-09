@@ -28,4 +28,16 @@ impl Sprite {
         self.advance(dt);
         self.discard = !(-300.0 < self.pos.y && self.pos.y < WINDOW_HEIGHT as f32 + 300.0);
     }
+
+    pub fn center(&self) -> Vector2 {
+        self.pos + (self.size / 2.0)
+    }
+
+    pub fn radius(&self) -> f32 {
+        self.size.y / 2.0
+    }
+
+    pub fn rect(&self) -> Rectangle {
+        Rectangle::new(self.pos.x, self.pos.y, self.size.x, self.size.y)
+    }
 }

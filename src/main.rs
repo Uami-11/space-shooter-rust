@@ -1,3 +1,4 @@
+mod collision;
 mod entities;
 mod game;
 mod settings;

@@ -7,6 +7,7 @@ use crate::{
 
 pub struct Input {
     pub direction: Vector2,
+    pub shoot: bool,
 }
 
 impl Input {
@@ -23,12 +24,14 @@ impl Input {
             Vector2::new(x as f32, y as f32)
         };
 
-        Self { direction }
+        let shoot = rl.is_key_pressed(KeyboardKey::KEY_SPACE);
+
+        Self { direction, shoot }
     }
 }
 
 pub struct Player {
-    sprite: Sprite,
+    pub sprite: Sprite,
 }
 
 impl Player {
@@ -56,5 +59,12 @@ impl Player {
 
     pub fn draw(&mut self, d: &mut RaylibDrawHandle<'_>) {
         d.draw_rectangle_v(self.sprite.pos, self.sprite.size, Color::WHITE)
+    }
+
+    pub fn muzzle(&mut self) -> Vector2 {
+        Vector2::new(
+            self.sprite.pos.x + (self.sprite.size.x / 2.0),
+            self.sprite.pos.y - self.sprite.size.y,
+        )
     }
 }
